@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class GoogleMapSearchPlacesApi extends StatefulWidget {
   const GoogleMapSearchPlacesApi({super.key});
@@ -18,7 +19,7 @@ class _GoogleMapSearchPlacesApiState extends State<GoogleMapSearchPlacesApi> {
   List<dynamic> _placeList = [];
   Timer? _debounce;
 
-  static const String gomapsApiKey = "AlzaSyA0W5PVIx0lHj1NstGuv9PLMUn2a0O7hoG";
+  final String _gomapsApiKey = '${dotenv.env['mapKey']}';
 
   @override
   void initState() {
@@ -43,7 +44,7 @@ class _GoogleMapSearchPlacesApiState extends State<GoogleMapSearchPlacesApi> {
   Future<void> getSuggestion(String input) async {
     String baseURL = 'https://maps.gomaps.pro/maps/api/place/autocomplete/json';
     String request =
-        '$baseURL?input=$input&key=$gomapsApiKey&sessiontoken=$_sessionToken';
+        '$baseURL?input=$input&key=$_gomapsApiKey&sessiontoken=$_sessionToken';
 
     try {
       final response = await http.get(Uri.parse(request));
@@ -65,7 +66,7 @@ class _GoogleMapSearchPlacesApiState extends State<GoogleMapSearchPlacesApi> {
 
   Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
     final url =
-        'https://maps.gomaps.pro/maps/api/place/details/json?place_id=$placeId&key=$gomapsApiKey';
+        'https://maps.gomaps.pro/maps/api/place/details/json?place_id=$placeId&key=$_gomapsApiKey';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {

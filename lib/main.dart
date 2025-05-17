@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'welcome.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
-  runApp(const Anapurna());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Required for async in main()
+  await dotenv.load(fileName: ".env"); // Load the env file
+  runApp(const Anapurna()); // Run your app
 }
 
 class Anapurna extends StatelessWidget {

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:anapurna_app/resto-side/resto-home.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -19,11 +20,12 @@ class _GoogleMapSearchPlacesApiState extends State<GoogleMapSearchPlacesApi> {
   List<dynamic> _placeList = [];
   Timer? _debounce;
 
-  final String _gomapsApiKey = '${dotenv.env['mapKey']}';
+  late String _gomapsApiKey = '${dotenv.env['mapKey']}';
 
   @override
   void initState() {
     super.initState();
+    _gomapsApiKey = dotenv.env['mapKey'] ?? '';
     _controller.addListener(_onChanged);
   }
 
@@ -130,10 +132,16 @@ class _GoogleMapSearchPlacesApiState extends State<GoogleMapSearchPlacesApi> {
                     if (location != null) {
                       final lat = location['lat'];
                       final lng = location['lng'];
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Location: ($lat, $lng)')),
+
+                      // Optionally save to local state or Firestore here
+
+                      // Navigate to HomePage with the selected coordinates
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RestaurantHomePage(),
+                        ),
                       );
-                      // You can now save lat/lng to Firestore or use it in a Map widget
                     }
                   },
                 );

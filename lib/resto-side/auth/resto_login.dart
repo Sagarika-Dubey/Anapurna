@@ -1,4 +1,5 @@
 import 'package:anapurna_app/resto-side/auth/resto_sigin.dart';
+import 'package:anapurna_app/resto-side/resto-home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -37,13 +38,14 @@ class _RestaurantAuthPageState extends State<RestaurantAuthPage> {
       await Future.delayed(const Duration(seconds: 2));
 
       if (mounted) {
+        // Show success SnackBar
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 12),
-                Text('Login successful!'),
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                const Text('Log-in successful!'),
               ],
             ),
             backgroundColor: Colors.green.shade800,
@@ -51,7 +53,13 @@ class _RestaurantAuthPageState extends State<RestaurantAuthPage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
+            duration: const Duration(seconds: 2),
           ),
+        );
+        // Navigate to the next page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => RestaurantHomePage()),
         );
       }
     } catch (e) {
@@ -60,8 +68,8 @@ class _RestaurantAuthPageState extends State<RestaurantAuthPage> {
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.error, color: Colors.white),
-                SizedBox(width: 12),
+                const Icon(Icons.error, color: Colors.white),
+                const SizedBox(width: 12),
                 Expanded(child: Text('Error: ${e.toString()}')),
               ],
             ),

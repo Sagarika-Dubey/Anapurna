@@ -1,11 +1,18 @@
+import 'package:anapurna_app/resto-side/donation_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'welcome.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Required for async in main()
   await dotenv.load(fileName: ".env"); // Load the env file
-  runApp(const Anapurna()); // Run your app
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => DonationProvider(),
+      child: Anapurna(),
+    ),
+  ); // Run your app
 }
 
 class Anapurna extends StatelessWidget {

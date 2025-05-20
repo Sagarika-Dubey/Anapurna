@@ -1,3 +1,4 @@
+import 'package:anapurna_app/ngo-side/auth/login.dart';
 import 'package:flutter/material.dart';
 import './resto-side/auth/resto_login.dart';
 
@@ -102,8 +103,12 @@ class WelcomePage extends StatelessWidget {
                     Expanded(
                       child: InkWell(
                         onTap: () {
-                          // Handle NGO card tap
-                          print('NGO card tapped');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NGOAuthPage(),
+                            ),
+                          );
                         },
                         child: _buildRoleCard(
                           context,

@@ -6,9 +6,9 @@ import './donation_model.dart';
 
 class AddDonationForm extends StatefulWidget {
   final Function(FoodDonation) onSubmit;
-  final FoodDonation? Donation; // For editing existing donation
+  final FoodDonation? donation; // Fixed variable naming convention (lowercase)
 
-  AddDonationForm({super.key, required this.onSubmit, this.Donation});
+  AddDonationForm({super.key, required this.onSubmit, this.donation});
 
   @override
   _AddDonationFormState createState() => _AddDonationFormState();
@@ -37,15 +37,12 @@ class _AddDonationFormState extends State<AddDonationForm> {
   @override
   void initState() {
     super.initState();
-    if (widget.Donation != null) {
+    if (widget.donation != null) {
       // Populate form with existing donation data for editing
-      _foodNameController.text = widget.Donation!.foodName;
-      _quantityController.text = widget.Donation!.quantity;
-      _selectedExpiryDate = widget.Donation!.expiry;
-      _selectedFoodType = widget.Donation!.foodType;
-
-      // If editing, we can't directly load the image file from imageUrl
-      // In a real app, you might want to download the image or handle differently
+      _foodNameController.text = widget.donation!.foodName;
+      _quantityController.text = widget.donation!.quantity;
+      _selectedExpiryDate = widget.donation!.expiry;
+      _selectedFoodType = widget.donation!.foodType;
 
       // Set date and time controllers
       _expiryDateController.text = DateFormat(
@@ -170,7 +167,7 @@ class _AddDonationFormState extends State<AddDonationForm> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       // Check if image is selected
-      if (_selectedImage == null && widget.Donation?.imageUrl == null) {
+      if (_selectedImage == null && widget.donation?.imageUrl == null) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Please select a food image')));
@@ -183,12 +180,12 @@ class _AddDonationFormState extends State<AddDonationForm> {
 
       // In a real app, you would upload the image to a server and get back a URL
       // For this example, we'll just use the local file path
-      String imageUrl = _selectedImage?.path ?? widget.Donation?.imageUrl ?? '';
+      String imageUrl = _selectedImage?.path ?? widget.donation?.imageUrl ?? '';
 
       // Create donation object
       final FoodDonation newDonation = FoodDonation(
         id:
-            widget.Donation?.id ??
+            widget.donation?.id ??
             'DON-${DateTime.now().millisecondsSinceEpoch.toString().substring(0, 4)}',
         foodName: _foodNameController.text,
         quantity: _quantityController.text,
@@ -197,7 +194,7 @@ class _AddDonationFormState extends State<AddDonationForm> {
         foodType: _selectedFoodType,
         imageUrl: imageUrl,
         donorName: 'Spice Garden Restaurant', // Hard-coded for example
-        createdAt: widget.Donation?.createdAt ?? DateTime.now(),
+        createdAt: widget.donation?.createdAt ?? DateTime.now(),
       );
 
       // Submit the donation to parent
@@ -232,7 +229,7 @@ class _AddDonationFormState extends State<AddDonationForm> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      widget.Donation == null
+                      widget.donation == null
                           ? 'Add Food Donation'
                           : 'Edit Food Donation',
                       style: TextStyle(
@@ -266,10 +263,20 @@ class _AddDonationFormState extends State<AddDonationForm> {
                                       image: FileImage(_selectedImage!),
                                       fit: BoxFit.cover,
                                     )
-                                    : widget.Donation?.imageUrl != null
+                                    : widget.donation?.imageUrl != null &&
+                                        widget.donation!.imageUrl.startsWith(
+                                          'http',
+                                        )
                                     ? DecorationImage(
                                       image: NetworkImage(
-                                        widget.Donation!.imageUrl,
+                                        widget.donation!.imageUrl,
+                                      ),
+                                      fit: BoxFit.cover,
+                                    )
+                                    : widget.donation?.imageUrl != null
+                                    ? DecorationImage(
+                                      image: FileImage(
+                                        File(widget.donation!.imageUrl),
                                       ),
                                       fit: BoxFit.cover,
                                     )
@@ -277,7 +284,7 @@ class _AddDonationFormState extends State<AddDonationForm> {
                           ),
                           child:
                               _selectedImage == null &&
-                                      widget.Donation?.imageUrl == null
+                                      widget.donation?.imageUrl == null
                                   ? Icon(
                                     Icons.add_a_photo,
                                     color: Colors.grey[500],
@@ -426,7 +433,7 @@ class _AddDonationFormState extends State<AddDonationForm> {
                         _isSubmitting
                             ? CircularProgressIndicator(color: Colors.white)
                             : Text(
-                              widget.Donation == null
+                              widget.donation == null
                                   ? 'Add Donation'
                                   : 'Update Donation',
                               style: TextStyle(fontSize: 16),

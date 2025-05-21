@@ -6,7 +6,7 @@ import './donation_model.dart';
 
 class AddDonationForm extends StatefulWidget {
   final Function(FoodDonation) onSubmit;
-  final FoodDonation? donation; // Fixed variable naming convention (lowercase)
+  final FoodDonation? donation;
 
   AddDonationForm({super.key, required this.onSubmit, this.donation});
 
@@ -23,7 +23,7 @@ class _AddDonationFormState extends State<AddDonationForm> {
 
   DateTime _selectedExpiryDate = DateTime.now().add(Duration(hours: 4));
   String _selectedFoodType = 'Vegetarian';
-  File? _selectedImage; // Store the selected image file
+  File? _selectedImage;
   bool _isSubmitting = false;
 
   List<String> foodTypes = [
@@ -51,6 +51,19 @@ class _AddDonationFormState extends State<AddDonationForm> {
       _expiryTimeController.text = DateFormat(
         'hh:mm a',
       ).format(_selectedExpiryDate);
+
+      // If we have an image URL that's a file path, set the selected image
+      if (widget.donation?.imageUrl != null &&
+          !widget.donation!.imageUrl.startsWith('http')) {
+        try {
+          final file = File(widget.donation!.imageUrl);
+          if (file.existsSync()) {
+            _selectedImage = file;
+          }
+        } catch (e) {
+          print('Error loading existing image: $e');
+        }
+      }
     } else {
       // Set default date and time for new donations
       _expiryDateController.text = DateFormat(
@@ -257,40 +270,9 @@ class _AddDonationFormState extends State<AddDonationForm> {
                           decoration: BoxDecoration(
                             color: Colors.grey[200],
                             borderRadius: BorderRadius.circular(10),
-                            image:
-                                _selectedImage != null
-                                    ? DecorationImage(
-                                      image: FileImage(_selectedImage!),
-                                      fit: BoxFit.cover,
-                                    )
-                                    : widget.donation?.imageUrl != null &&
-                                        widget.donation!.imageUrl.startsWith(
-                                          'http',
-                                        )
-                                    ? DecorationImage(
-                                      image: NetworkImage(
-                                        widget.donation!.imageUrl,
-                                      ),
-                                      fit: BoxFit.cover,
-                                    )
-                                    : widget.donation?.imageUrl != null
-                                    ? DecorationImage(
-                                      image: FileImage(
-                                        File(widget.donation!.imageUrl),
-                                      ),
-                                      fit: BoxFit.cover,
-                                    )
-                                    : null,
                           ),
-                          child:
-                              _selectedImage == null &&
-                                      widget.donation?.imageUrl == null
-                                  ? Icon(
-                                    Icons.add_a_photo,
-                                    color: Colors.grey[500],
-                                    size: 40,
-                                  )
-                                  : null,
+                          // Use conditional widget rather than conditional decoration
+                          child: _buildImageWidget(),
                         ),
                         Positioned(
                           right: 0,
@@ -446,5 +428,69 @@ class _AddDonationFormState extends State<AddDonationForm> {
         ),
       ),
     );
+  }
+
+  // New helper method to build the image widget
+  Widget _buildImageWidget() {
+    // If there's a selected image (from camera/gallery)
+    if (_selectedImage != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.file(
+          _selectedImage!,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            print('Error loading file image: $error');
+            return Icon(Icons.broken_image, color: Colors.grey[500], size: 40);
+          },
+        ),
+      );
+    }
+
+    // If there's an existing donation with a network image URL
+    if (widget.donation?.imageUrl != null &&
+        widget.donation!.imageUrl.startsWith('http')) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.network(
+          widget.donation!.imageUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            print('Error loading network image: $error');
+            return Icon(Icons.broken_image, color: Colors.grey[500], size: 40);
+          },
+        ),
+      );
+    }
+
+    // If there's an existing donation with a file path
+    if (widget.donation?.imageUrl != null &&
+        !widget.donation!.imageUrl.startsWith('http')) {
+      try {
+        final file = File(widget.donation!.imageUrl);
+        if (file.existsSync()) {
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.file(
+              file,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                print('Error loading file image from path: $error');
+                return Icon(
+                  Icons.broken_image,
+                  color: Colors.grey[500],
+                  size: 40,
+                );
+              },
+            ),
+          );
+        }
+      } catch (e) {
+        print('Error checking file existence: $e');
+      }
+    }
+
+    // Default case: no image
+    return Icon(Icons.add_a_photo, color: Colors.grey[500], size: 40);
   }
 }
